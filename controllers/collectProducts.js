@@ -29,9 +29,9 @@ const collectProductUrls = async (baseUrl) => {
 
   let productUrls = new Set();
 
-  for (let pageNo = 1; pageNo <= 25; pageNo++) {
+  for (let pageNo = 1; pageNo <= 2; pageNo++) {
     const url = `${baseUrl}&page=${pageNo}`;
-    console.log(`\n📄 Loading Page ${pageNo}: ${url}`);
+    console.log(`\n Loading Page ${pageNo}: ${url}`);
 
     try {
       await page.goto(url, {
@@ -39,25 +39,23 @@ const collectProductUrls = async (baseUrl) => {
         timeout: 90000,
       });
     } catch (err) {
-      console.log("⚠ Retry page load...");
+      console.log("Retry page load...");
       await delay(2000);
       await page.goto(url, { waitUntil: "domcontentloaded", timeout: 90000 });
     }
 
     await delay(3000);
 
-    // Scroll to bottom to load lazy elements
     await autoScroll(page);
     await delay(2000);
 
-    // WORKING SELECTOR
     const urls = await page.$$eval('a[href*="/p/"]', (links) =>
       links.map((a) => a.href.split("?")[0])
     );
 
     urls.forEach((u) => productUrls.add(u));
 
-    console.log(`🔗 Total collected so far: ${productUrls.size}`);
+    console.log(`Total collected so far: ${productUrls.size}`);
 
     await delay(2000);
   }
